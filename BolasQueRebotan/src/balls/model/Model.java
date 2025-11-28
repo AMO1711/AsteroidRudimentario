@@ -120,6 +120,14 @@ public class Model {
         }
     }
 
+    public void moveUp(Player player){player.moveUp();}
+
+    public void moveDown(Player player){player.moveDown();}
+
+    public void moveLeft(Player player){player.moveLeft();}
+
+    public void moveRight(Player player){player.moveRight();}
+
     public void northRebound(Asteroid pelota){
         pelota.northRebound();
     }

@@ -49,6 +49,14 @@ public class Controller {
         }
     }
 
+    public void moveUp(Player player){model.moveUp(player);}
+
+    public void moveDown(Player player){model.moveDown(player);}
+
+    public void moveLeft(Player player){model.moveLeft(player);}
+
+    public void moveRight(Player player){model.moveRight(player);}
+
     public ArrayList<ZonaCritica> getAllRooms(){
          return model.getAllRooms();
     }
@@ -73,5 +81,9 @@ public class Controller {
 
     public int getViewerHeight() {
         return view.getViewerHeight();
+    }
+
+    public Model getModel() {
+        return model;
     }
 }

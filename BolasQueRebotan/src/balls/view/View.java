@@ -66,6 +66,14 @@ public class View extends JFrame {
         viewer.getThread().start();
     }
 
+    public void moveUp(Player player){controller.moveUp(player);}
+
+    public void moveDown(Player player){controller.moveDown(player);}
+
+    public void moveLeft(Player player){controller.moveLeft(player);}
+
+    public void moveRight(Player player){controller.moveRight(player);}
+
     public ArrayList<ZonaCritica> getAllRooms(){
          return controller.getAllRooms();
     }
@@ -106,5 +114,9 @@ public class View extends JFrame {
 
     public DataPanel getDataPanel() {
         return dataPanel;
+    }
+
+    public Controller getController() {
+        return controller;
     }
 }

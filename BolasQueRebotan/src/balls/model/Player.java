@@ -4,10 +4,9 @@ import balls.physics.PhysicsModel;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 
-public class Player implements KeyListener {
+public class Player{
     private final Model model;
     private final int DIAMETER;
     private String imagen;
@@ -40,32 +39,21 @@ public class Player implements KeyListener {
         estadoPlayer = PlayerState.DEAD;
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {}
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (estadoPlayer == PlayerState.ALIVE && model.getEstado() == State.PLAY){
-            int tecla = e.getKeyCode();
-
-            int w = model.getViewerWidth();
-            int h = model.getViewerHeight();
-
-            if (tecla == KeyEvent.VK_UP){
-                modeloFisico.up(w, h, DIAMETER);
-            } else if (tecla == KeyEvent.VK_DOWN) {
-                modeloFisico.down(w, h, DIAMETER);
-            } else if (tecla == KeyEvent.VK_RIGHT) {
-                modeloFisico.right(w, h, DIAMETER);
-            } else if (tecla == KeyEvent.VK_LEFT) {
-                modeloFisico.left(w, h, DIAMETER);
-            }
-        }
+    public void moveUp(){
+        modeloFisico.up(model.getViewerWidth(), model.getViewerHeight(), DIAMETER);
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {}
+    public void moveDown() {
+        modeloFisico.down(model.getViewerWidth(), model.getViewerHeight(), DIAMETER);
+    }
 
+    public void moveLeft() {
+        modeloFisico.left(model.getViewerWidth(), model.getViewerHeight(), DIAMETER);
+    }
+
+    public void moveRight() {
+        modeloFisico.right(model.getViewerWidth(), model.getViewerHeight(), DIAMETER);
+    }
 
     public String getImagen() {
         return imagen;
@@ -81,5 +69,9 @@ public class Player implements KeyListener {
 
     public PhysicsModel getModeloFisico() {
         return modeloFisico;
+    }
+
+    public PlayerState getEstadoPlayer() {
+        return estadoPlayer;
     }
 }

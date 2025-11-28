@@ -1,11 +1,11 @@
 package balls.view;
 
-import balls.model.Asteroid;
-import balls.model.Player;
-import balls.model.ZonaCritica;
+import balls.model.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -24,9 +24,24 @@ public class Viewer extends Canvas implements Runnable {
         setFocusable(true);
         setIgnoreRepaint(true);
 
-        for (Player p : view.getAllPlayers()) {
-            addKeyListener(p);
-        }
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                for (Player player : view.getAllPlayers()) {
+
+                    if (player.getEstadoPlayer() != PlayerState.ALIVE || view.getController().getModel().getEstado() != State.PLAY){
+                        continue;
+                    }
+
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_UP -> view.moveUp(player);
+                        case KeyEvent.VK_DOWN -> view.moveDown(player);
+                        case KeyEvent.VK_LEFT -> view.moveLeft(player);
+                        case KeyEvent.VK_RIGHT -> view.moveRight(player);
+                    }
+                }
+            }
+        });
 
         thread = new Thread(this);
     }
