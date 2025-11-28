@@ -41,59 +41,52 @@ public class Viewer extends Canvas implements Runnable {
     @Override
     public void run() {
         while (true) {
-            renderFrame();
+            if (bufferStrategy == null) return;
 
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException ignored) {}
+            long start = System.nanoTime(), end, renderTime;
+
+            Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
+
+            g.setColor(Color.WHITE);
+            g.fillRect(0, 0, getWidth(), getHeight());
+
+            ArrayList<Asteroid> asteroids = view.getAllBalls();
+            ArrayList<ZonaCritica> rooms = view.getAllRooms();
+            ArrayList<Player> players = view.getAllPlayers();
+
+            paintRooms(rooms, g);
+            paintPlayers(players, g);
+            paintBall(asteroids, g);
+
+            g.dispose();
+            bufferStrategy.show();
+
+            end = System.nanoTime();
+            renderTime = end - start;
+
+            view.getDataPanel().actualizarTabla(renderTime);
         }
-    }
-
-    private void renderFrame() {
-        if (bufferStrategy == null) return;
-
-        long start = System.nanoTime(), end, renderTime;
-
-        Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
-
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, getWidth(), getHeight());
-
-        ArrayList<Asteroid> asteroids = view.getAllBalls();
-        ArrayList<ZonaCritica> rooms = view.getAllRooms();
-        ArrayList<Player> players = view.getAllPlayers();
-
-        paintRooms(rooms, g);
-        paintPlayers(players, g);
-        for (Asteroid a : asteroids) {
-            paintBall(a, g);
-        }
-
-        g.dispose();
-        bufferStrategy.show();
-
-        end = System.nanoTime();
-        renderTime = end - start;
-
-        view.getDataPanel().actualizarTabla(renderTime);
     }
 
     public Thread getThread() {
         return this.thread;
     }
 
-    public void paintBall(Asteroid asteroid, Graphics2D g) {
-        int diameter = asteroid.getDIAMETER();
-        g.setColor(asteroid.getCOLOR());
-        g.fillOval(asteroid.getModeloFisico().pv.posicion.x,
-                asteroid.getModeloFisico().pv.posicion.y,
-                diameter, diameter);
+    public void paintBall(ArrayList<Asteroid> asteroids, Graphics2D g) {
+        int diameter;
+
+        for (Asteroid asteroid:asteroids){
+            diameter = asteroid.getDIAMETER();
+            g.setColor(asteroid.getCOLOR());
+            g.fillOval(asteroid.getModeloFisico().pv.posicion.x,
+                    asteroid.getModeloFisico().pv.posicion.y,
+                    diameter, diameter);
+        }
     }
 
     public void paintRooms(ArrayList<ZonaCritica> rooms, Graphics2D g){
         for (ZonaCritica room:rooms){
             g.setColor(Color.gray);
-            //g.fillRect(room.getPosicion().x, room.getPosicion().y, room.getDimensiones().x, room.getDimensiones().y);
             g.drawRect(room.getPosicion().x, room.getPosicion().y, room.getDimensiones().x, room.getDimensiones().y);
         }
     }

@@ -60,7 +60,7 @@ public class Model {
     }
 
     public void inicializarJugador1(){
-        PhysicsModel modeloFisico = new PhysicsModel(new PhysicsValuesDTO(new DesgloseXY(0, 0), new DesgloseXY(0, 0), new DesgloseXY(0, 0)));
+        PhysicsModel modeloFisico = new PhysicsModel(new PhysicsValuesDTO(new DesgloseXY(250, 400), new DesgloseXY(0, 0), new DesgloseXY(0, 0)));
         Player jugador = new Player(this, 50, "src/balls/graphics/Player.png", modeloFisico);
         jugador.playerActivation();
 
