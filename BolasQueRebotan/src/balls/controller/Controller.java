@@ -15,6 +15,8 @@ public class Controller {
     public Controller() {
         this.model = new Model(this);
         this.view = new View(this);
+
+        view.viewerActivation();
     }
 
     public void playAnimation(){

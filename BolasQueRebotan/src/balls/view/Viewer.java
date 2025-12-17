@@ -87,6 +87,10 @@ public class Viewer extends Canvas implements Runnable {
         return this.thread;
     }
 
+    public void activation(){
+        thread.start();
+    }
+
     public void paintBall(ArrayList<Asteroid> asteroids, Graphics2D g) {
         int diameter;
 

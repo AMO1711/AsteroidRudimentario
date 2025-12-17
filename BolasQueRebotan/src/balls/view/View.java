@@ -33,11 +33,11 @@ public class View extends JFrame {
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weightx = 0;
         gbc.weighty = 1.0;
-        controlPanel.getFireButton().addActionListener(_ -> addBall());
-        controlPanel.getAutofireButton().addActionListener(_ -> autoAddBall());
-        controlPanel.getResumeButton().addActionListener(_ -> resumeAnimation());
-        controlPanel.getPauseButton().addActionListener(_ -> pauseAnimation());
-        controlPanel.getRestartButton().addActionListener(_ -> removeBalls());
+        controlPanel.getFireButton().addActionListener(_ -> controller.addBall());
+        controlPanel.getAutofireButton().addActionListener(_ -> controller.autoAddBall());
+        controlPanel.getResumeButton().addActionListener(_ -> controller.playAnimation());
+        controlPanel.getPauseButton().addActionListener(_ -> controller.pauseAnimation());
+        controlPanel.getRestartButton().addActionListener(_ -> controller.stopAnimation());
         content.add(controlPanel, gbc);
 
         // --- Panel de datos (bottom-left)---
@@ -62,8 +62,10 @@ public class View extends JFrame {
         setVisible(true);
 
         SwingUtilities.invokeLater(() -> {this.requestFocus();});
+    }
 
-        viewer.getThread().start();
+    public void viewerActivation(){
+        viewer.activation();
     }
 
     public void moveUp(Player player){controller.moveUp(player);}
@@ -80,28 +82,8 @@ public class View extends JFrame {
 
     public ArrayList<Player> getAllPlayers(){return controller.getAllPlayers();}
 
-    public void addBall() {
-        controller.addBall();
-    }
-
-    public void autoAddBall(){
-        controller.autoAddBall();
-    }
-
     public ArrayList<Asteroid> getAllBalls() {
         return controller.getAllBalls();
-    }
-
-    public void resumeAnimation(){
-        controller.playAnimation();
-    }
-
-    public void pauseAnimation(){
-        controller.pauseAnimation();
-    }
-
-    public void removeBalls(){
-        controller.stopAnimation();
     }
 
     public int getViewerWidth() {
@@ -116,7 +98,15 @@ public class View extends JFrame {
         return dataPanel;
     }
 
+    public ControlPanel getControlPanel() {
+        return controlPanel;
+    }
+
     public Controller getController() {
         return controller;
+    }
+
+    public Viewer getViewer() {
+        return viewer;
     }
 }
