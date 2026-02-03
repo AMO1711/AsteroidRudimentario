@@ -5,14 +5,18 @@ import balls.model.Player;
 import balls.model.ZonaCritica;
 import balls.view.View;
 import balls.model.Model;
+import comunication.channel.BolaDTO;
+import helpers.MasterController;
 
 import java.util.ArrayList;
 
 public class Controller {
+    private final MasterController controladorMaestro;
     private final Model model;
     private final View view;
 
-    public Controller() {
+    public Controller(MasterController controladorMaestro) {
+        this.controladorMaestro = controladorMaestro;
         this.model = new Model(this);
         this.view = new View(this);
 
@@ -36,10 +40,12 @@ public class Controller {
             model.northRebound(pelota);
         } else if (evento == Events.SOUTH_LIMIT_REACHED) {
             model.southRebound(pelota);
-        } else if (evento == Events.EAST_LIMIT_REACHED) {
-            model.eastRebound(pelota);
-        } else if (evento == Events.WEST_LIMIT_REACHED) {
-            model.westRebound(pelota);
+        } else if (evento == Events.EAST_LIMIT_REACHED) { //todo pasar a la otra pantalla
+            lanzarBola(pelota);
+            pelota.stop();
+        } else if (evento == Events.WEST_LIMIT_REACHED) { //todo pasar a la otra pantalla
+            lanzarBola(pelota);
+            pelota.stop();
         }
     }
 
@@ -49,6 +55,18 @@ public class Controller {
         } else if (evento == Events.GO_OUTSIDE_ROOM) {
             model.goOutside(pelota, room);
         }
+    }
+
+    private void lanzarBola (Asteroid bola){
+        int posX = getViewerWidth() - bola.getModeloFisico().pv.posicion.x;
+
+        BolaDTO bolaDTO = new BolaDTO(bola.getDIAMETER(),
+                posX, bola.getModeloFisico().pv.posicion.y,
+                bola.getModeloFisico().pv.velocidad.x, bola.getModeloFisico().pv.velocidad.y,
+                bola.getModeloFisico().pv.aceleracion.x, bola.getModeloFisico().pv.aceleracion.y,
+                bola.getCOLOR());
+
+        controladorMaestro.lanzarBola(bolaDTO);
     }
 
     public void moveUp(Player player){model.moveUp(player);}
@@ -64,6 +82,10 @@ public class Controller {
     }
 
     public ArrayList<Player> getAllPlayers(){return model.getAllPlayers();}
+
+    public void introducirBola (BolaDTO bolaDTO){
+        model.addBall(bolaDTO);
+    }
 
     public void addBall() {
         model.addBall();

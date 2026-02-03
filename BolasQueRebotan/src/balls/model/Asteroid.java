@@ -26,6 +26,16 @@ public class Asteroid implements Runnable {
         habitacionesActuales = new ArrayList<>();
     }
 
+    public Asteroid(Model model, int diametro, Color color, PhysicsModel modeloFisico){
+        this.model = model;
+        this.modeloFisico = modeloFisico;
+
+        DIAMETER = diametro;
+        COLOR = color;
+        estadoBola = AsteroidState.INICIALIZING;
+        habitacionesActuales = new ArrayList<>();
+    }
+
     public void ballActivation(){
         estadoBola = AsteroidState.ALIVE;
         hilo = new Thread(this);
@@ -91,6 +101,9 @@ public class Asteroid implements Runnable {
                 model.eventDetector(this);
 
                 modeloFisico.move();
+            } else if (estadoBola == AsteroidState.DEAD) {
+                model.removeBall(this);
+                break;
             }
 
             try {

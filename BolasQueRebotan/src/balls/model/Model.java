@@ -5,6 +5,7 @@ import balls.controller.Events;
 import balls.physics.DesgloseXY;
 import balls.physics.PhysicsModel;
 import balls.physics.PhysicsValuesDTO;
+import comunication.channel.BolaDTO;
 
 import java.util.ArrayList;
 
@@ -48,6 +49,30 @@ public class Model {
             pm = new PhysicsModel(new PhysicsValuesDTO(posicion, velocidad, aceleracion));
 
             Asteroid asteroid = new Asteroid(this, tamanoMinimoBola, tamanoMaximoBola, pm);
+            asteroid.ballActivation();
+            asteroidList.add(asteroid);
+        }
+    }
+
+    public void addBall (BolaDTO bolaDTO){
+        if (asteroidList.size() < numeroMaxBolas && estado == State.PLAY){
+            int x,y, velX, velY, accX, accY;
+            DesgloseXY posicion, velocidad, aceleracion;
+            PhysicsModel pm;
+
+            x = bolaDTO.posicionX;
+            y = bolaDTO.posicionY;
+            posicion = new DesgloseXY(x, y);
+            velX = bolaDTO.velocidadX;
+            velY = bolaDTO.velocidadY;
+            velocidad = new DesgloseXY(velX, velY);
+            accX = bolaDTO.aceleracionX;
+            accY = bolaDTO.aceleracionY;
+            aceleracion = new DesgloseXY(accX, accY);
+
+            pm = new PhysicsModel(new PhysicsValuesDTO(posicion, velocidad, aceleracion));
+
+            Asteroid asteroid = new Asteroid(this, bolaDTO.DIAMETER, bolaDTO.color, pm);
             asteroid.ballActivation();
             asteroidList.add(asteroid);
         }
@@ -150,6 +175,10 @@ public class Model {
 
     public ArrayList<Asteroid> getAllBalls() {
         return new ArrayList<>(asteroidList);
+    }
+
+    public void removeBall (Asteroid bola){
+        asteroidList.remove(bola);
     }
 
     public ArrayList<ZonaCritica> getAllRooms(){return new ArrayList<>(rooms);}
