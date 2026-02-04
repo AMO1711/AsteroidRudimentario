@@ -4,15 +4,15 @@ import balls.controller.Controller;
 import comunication.ComController;
 import comunication.channel.BolaDTO;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 
 public class MasterController {
     private final Controller controlador;
     private final ComController comunicaciones;
 
-    private static final String IP_EQUIPO_1 = "172.26.224.1"; //Wifiwire Adrián
-    private static final String IP_EQUIPO_2 = "192.168.56.1"; //Wifiwire Thomas - 172.16.8.13
+    private static final String IP_EQUIPO_1 = "172.16.8.54"; //Wifiwire Adrián - conseguido mediante ipconfig
+    private static final String IP_EQUIPO_2 = "172.16.8.13"; //Wifiwire Thomas - conseguido mediante ipconfig
 
     public MasterController(){
         String miIP = obtenerMiIP();
@@ -24,6 +24,7 @@ public class MasterController {
         this.comunicaciones = new ComController(this, ipRemota, 11000, 11001);
     }
 
+    /*
     private String obtenerMiIP(){
         try {
             return InetAddress.getLocalHost().getHostAddress();
@@ -31,6 +32,8 @@ public class MasterController {
             return "localhost";
         }
     }
+
+     */
 
     private String obtenerIPRemota(String miIP){
         if (miIP.equals(IP_EQUIPO_1)) {
@@ -40,6 +43,53 @@ public class MasterController {
         } else {
             // Para desarrollo en localhost
             System.out.println("⚠️ MODO DESARROLLO: IP no reconocida, usando localhost");
+            return "localhost";
+        }
+    }
+
+    private String obtenerMiIP(){
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+
+                // Saltar interfaces inactivas, loopback y virtuales
+                if (!iface.isUp() || iface.isLoopback()) {
+                    continue;
+                }
+
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+
+                    // Solo procesar IPv4
+                    if (addr instanceof Inet4Address) {
+                        String ip = addr.getHostAddress();
+
+                        // ✅ Buscar específicamente IPs de vuestra red (172.16.8.x)
+                        if (ip.startsWith("172.16.8.")) {
+                            System.out.println("✅ IP Wi-Fi detectada: " + ip + " (interfaz: " + iface.getDisplayName() + ")");
+                            return ip;
+                        }
+                    }
+                }
+            }
+
+            // Si no encuentra 172.16.8.x, intentar con getLocalHost()
+            System.out.println("⚠️ No se encontró IP 172.16.8.x, usando getLocalHost()");
+            return InetAddress.getLocalHost().getHostAddress();
+
+        } catch (SocketException e) {
+            System.err.println("❌ Error obteniendo interfaces de red: " + e.getMessage());
+            try {
+                return InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException ex) {
+                return "localhost";
+            }
+        } catch (UnknownHostException e) {
+            System.err.println("❌ Error obteniendo host local: " + e.getMessage());
             return "localhost";
         }
     }
