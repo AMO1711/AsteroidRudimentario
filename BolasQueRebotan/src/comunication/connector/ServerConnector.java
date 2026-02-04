@@ -24,6 +24,7 @@ public class ServerConnector implements Runnable{
         Socket socket;
 
         while (true){
+            System.out.println("ServerConnector se intenta conectar");
             if (serverSocket == null){
                 conectarPuerto();
             }

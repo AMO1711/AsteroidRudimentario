@@ -18,6 +18,8 @@ public class MasterController {
         String miIP = obtenerMiIP();
         String ipRemota = obtenerIPRemota(miIP);
 
+        System.out.println("Mi ip: " + miIP + "\nIp remota: " + ipRemota);
+
         this.controlador = new Controller(this);
         this.comunicaciones = new ComController(this, ipRemota, 11000, 11001);
     }

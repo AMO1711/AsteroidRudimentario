@@ -23,6 +23,7 @@ public class ClientConnector implements Runnable{
         Socket socket = null;
 
         while (true){
+            System.out.println("ClientConnector se intenta conectar");
             if (!comController.isValid()){
                 if (Objects.equals(HOST, "localhost")){
                     try {
@@ -33,11 +34,14 @@ public class ClientConnector implements Runnable{
                 } else {
                     try {
                         socket = new Socket(HOST, mainPort);
+                        System.out.println("He llegado hasta aqui");
                     } catch (IOException e) {
+                        System.out.println("He llegado hasta aqui2");
                         try {
                             socket = new Socket(HOST, auxPort);
                         } catch (IOException ex) {
                             try {
+                                System.out.println("Aun no me he conectado");
                                 Thread.sleep(1000);
                             } catch (InterruptedException exc) {
                                 throw new RuntimeException(exc);
