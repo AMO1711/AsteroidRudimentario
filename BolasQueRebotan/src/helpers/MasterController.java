@@ -12,7 +12,7 @@ public class MasterController {
     private final ComController comunicaciones;
 
     private static final String IP_EQUIPO_1 = "172.26.224.1"; //Wifiwire Adrián
-    private static final String IP_EQUIPO_2 = "192.168.1.101"; //
+    private static final String IP_EQUIPO_2 = "192.168.56.1"; //Wifiwire Thomas - 172.16.8.13
 
     public MasterController(){
         String miIP = obtenerMiIP();
