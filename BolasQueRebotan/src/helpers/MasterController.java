@@ -24,17 +24,6 @@ public class MasterController {
         this.comunicaciones = new ComController(this, ipRemota, 11000, 11001);
     }
 
-    /*
-    private String obtenerMiIP(){
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            return "localhost";
-        }
-    }
-
-     */
-
     private String obtenerIPRemota(String miIP){
         if (miIP.equals(IP_EQUIPO_1)) {
             return IP_EQUIPO_2; // Soy equipo 1, conecto a equipo 2

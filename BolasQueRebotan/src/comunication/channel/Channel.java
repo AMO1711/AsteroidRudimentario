@@ -2,22 +2,29 @@ package comunication.channel;
 
 import comunication.ComController;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class Channel implements Runnable{
+public class Channel implements Runnable {
     private ComController comController;
     private Socket socket;
     private String ip;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private HealthChannel healthChannel;
+    private Thread readerThread; // ✅ NUEVO: Controlar thread de lectura
+    private Thread healthThread;  // ✅ NUEVO: Controlar thread de health
 
     public Channel(String ip, ComController comController){
         this.comController = comController;
         this.socket = null;
         this.ip = ip;
-        this.healthChannel = new HealthChannel(this);
+        this.healthChannel = null; // ✅ Inicializar en null
+        this.readerThread = null;
+        this.healthThread = null;
     }
 
     public boolean isValid(){
@@ -25,7 +32,7 @@ public class Channel implements Runnable{
     }
 
     public synchronized void setSocket(Socket socket){
-        // ✅ Si ya hay un socket válido, cerrar el nuevo y salir
+        // Si ya hay un socket válido, cerrar el nuevo y salir
         if(this.socket != null && !this.socket.isClosed()){
             try {
                 System.out.println("⚠️ Ya existe socket válido, cerrando el nuevo");
@@ -36,15 +43,13 @@ public class Channel implements Runnable{
             return;
         }
 
-        // ✅ Limpiar socket anterior si existe pero está cerrado
+        // Limpiar socket anterior si existe pero está cerrado
         if (this.socket != null && this.socket.isClosed()) {
             System.out.println("🧹 Limpiando socket anterior cerrado");
-            this.socket = null;
-            this.in = null;
-            this.out = null;
+            limpiarSocket();
         }
 
-        // ✅ Verificar que el socket entrante es válido
+        // Verificar que el socket entrante es válido
         if (socket == null || socket.isClosed() || !socket.isConnected()) {
             System.err.println("❌ Socket inválido recibido en setSocket()");
             return;
@@ -62,9 +67,15 @@ public class Channel implements Runnable{
 
             System.out.println("✅ Streams creados exitosamente");
 
-            // ✅ Iniciar threads solo si todo salió bien
-            new Thread(this).start();
-            new Thread(healthChannel).start();
+            // ✅ Crear NUEVO HealthChannel para esta conexión
+            this.healthChannel = new HealthChannel(this);
+
+            // ✅ Iniciar threads controlados
+            readerThread = new Thread(this, "ChannelReader");
+            readerThread.start();
+
+            healthThread = new Thread(healthChannel, "HealthChannel");
+            healthThread.start();
 
         } catch (EOFException e) {
             System.err.println("❌ EOFException: El socket remoto se cerró antes de completar el handshake");
@@ -76,31 +87,13 @@ public class Channel implements Runnable{
         }
     }
 
-    /**
-     * ✅ NUEVO: Método para limpiar el socket cuando falla
-     */
-    private void limpiarSocket() {
-        try {
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        this.socket = null;
-        this.out = null;
-        this.in = null;
-
-        System.out.println("🧹 Socket limpiado después de error");
-    }
-
     public synchronized void send(MsgDTO msg){
-        if(out != null){
+        if(out != null && socket != null && !socket.isClosed()){
             try {
                 out.writeObject(msg);
                 out.flush();
             } catch (IOException e) {
+                System.err.println("❌ Error enviando mensaje: " + e.getMessage());
                 close();
             }
         }
@@ -117,7 +110,9 @@ public class Channel implements Runnable{
                 send(new MsgDTO(2, null));
                 break;
             case 2: //El mensaje ha sido enviado para decir que la conexión va bien
-                healthChannel.notifyHealthy();
+                if (healthChannel != null) {
+                    healthChannel.notifyHealthy();
+                }
                 break;
         }
     }
@@ -152,7 +147,27 @@ public class Channel implements Runnable{
             e.printStackTrace();
         }
 
+        // ✅ Los threads terminarán solos al detectar socket cerrado
+        readerThread = null;
+        healthThread = null;
+
         System.out.println("✅ Channel cerrado completamente");
+    }
+
+    private void limpiarSocket() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        this.socket = null;
+        this.out = null;
+        this.in = null;
+
+        System.out.println("🧹 Socket limpiado después de error");
     }
 
     public void comprobarConexion(){
