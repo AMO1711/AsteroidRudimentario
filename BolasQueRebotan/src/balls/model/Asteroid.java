@@ -102,7 +102,6 @@ public class Asteroid implements Runnable {
 
                 modeloFisico.move();
             } else if (estadoBola == AsteroidState.DEAD) {
-                model.removeBall(this);
                 break;
             }
 

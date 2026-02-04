@@ -43,9 +43,11 @@ public class Controller {
         } else if (evento == Events.EAST_LIMIT_REACHED) { //todo pasar a la otra pantalla
             lanzarBola(pelota);
             pelota.stop();
+            model.removeBall(pelota);
         } else if (evento == Events.WEST_LIMIT_REACHED) { //todo pasar a la otra pantalla
             lanzarBola(pelota);
             pelota.stop();
+            model.removeBall(pelota);
         }
     }
 

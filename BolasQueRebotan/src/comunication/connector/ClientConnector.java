@@ -37,7 +37,12 @@ public class ClientConnector implements Runnable{
                         try {
                             socket = new Socket(HOST, auxPort);
                         } catch (IOException ex) {
-                            throw new RuntimeException(ex);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException exc) {
+                                throw new RuntimeException(exc);
+                            }
+                            continue;
                         }
                     }
                 }
