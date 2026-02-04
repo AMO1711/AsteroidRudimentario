@@ -25,21 +25,74 @@ public class Channel implements Runnable{
     }
 
     public synchronized void setSocket(Socket socket){
+        // ✅ Si ya hay un socket válido, cerrar el nuevo y salir
         if(this.socket != null && !this.socket.isClosed()){
-            return; // ya hay conexión activa
+            try {
+                System.out.println("⚠️ Ya existe socket válido, cerrando el nuevo");
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        // ✅ Limpiar socket anterior si existe pero está cerrado
+        if (this.socket != null && this.socket.isClosed()) {
+            System.out.println("🧹 Limpiando socket anterior cerrado");
+            this.socket = null;
+            this.in = null;
+            this.out = null;
+        }
+
+        // ✅ Verificar que el socket entrante es válido
+        if (socket == null || socket.isClosed() || !socket.isConnected()) {
+            System.err.println("❌ Socket inválido recibido en setSocket()");
+            return;
         }
 
         this.socket = socket;
-        try {
-            out = new ObjectOutputStream(socket.getOutputStream());
-            out.flush(); // importante
 
+        try {
+            System.out.println("🔧 Creando ObjectOutputStream...");
+            out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+
+            System.out.println("🔧 Creando ObjectInputStream...");
             in = new ObjectInputStream(socket.getInputStream());
+
+            System.out.println("✅ Streams creados exitosamente");
+
+            // ✅ Iniciar threads solo si todo salió bien
             new Thread(this).start();
             new Thread(healthChannel).start();
+
+        } catch (EOFException e) {
+            System.err.println("❌ EOFException: El socket remoto se cerró antes de completar el handshake");
+            limpiarSocket();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("❌ Error creando streams: " + e.getMessage());
+            e.printStackTrace();
+            limpiarSocket();
         }
+    }
+
+    /**
+     * ✅ NUEVO: Método para limpiar el socket cuando falla
+     */
+    private void limpiarSocket() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        this.socket = null;
+        this.out = null;
+        this.in = null;
+
+        System.out.println("🧹 Socket limpiado después de error");
     }
 
     public synchronized void send(MsgDTO msg){
@@ -69,12 +122,37 @@ public class Channel implements Runnable{
         }
     }
 
-    public void close(){
+    public synchronized void close(){
+        System.out.println("🛑 Cerrando Channel...");
+
         try {
-            socket.close();
+            if (in != null) {
+                in.close();
+                in = null;
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+
+        try {
+            if (out != null) {
+                out.close();
+                out = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+            socket = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("✅ Channel cerrado completamente");
     }
 
     public void comprobarConexion(){
@@ -91,19 +169,31 @@ public class Channel implements Runnable{
 
         while (socket != null && !socket.isClosed()){
             try {
-                msg = (MsgDTO) in.readObject();  // 🔥 AQUÍ ESTÁ EL CAMBIO
+                msg = (MsgDTO) in.readObject();
 
                 if (msg == null) {
-                    socket.close();
+                    System.out.println("⚠️ Mensaje nulo recibido, cerrando conexión");
+                    close();
                     break;
                 }
 
                 procesarMensaje(msg);
 
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (EOFException e) {
+                System.err.println("❌ Conexión cerrada por el otro extremo (EOFException)");
+                close();
+                break;
+            } catch (IOException e) {
+                System.err.println("❌ Error de I/O: " + e.getMessage());
+                close();
+                break;
+            } catch (ClassNotFoundException e) {
+                System.err.println("❌ Clase no encontrada: " + e.getMessage());
                 close();
                 break;
             }
         }
+
+        System.out.println("🛑 Thread de lectura del Channel terminado");
     }
 }

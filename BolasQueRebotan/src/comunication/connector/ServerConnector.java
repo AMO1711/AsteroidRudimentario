@@ -24,21 +24,35 @@ public class ServerConnector implements Runnable{
         Socket socket;
 
         while (true){
-            System.out.println("ServerConnector se intenta conectar");
             if (serverSocket == null){
                 conectarPuerto();
+                System.out.println("✅ ServerConnector escuchando en puerto: " + actualPort);
             }
 
-            try {
-                socket = serverSocket.accept();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            if (comController.isValid(socket)){
+            // ✅ Solo aceptar conexiones si NO hay una válida
+            if (!comController.isValid()) {
                 try {
-                    socket.close();
+                    System.out.println("⏳ Esperando conexión en puerto " + actualPort + "...");
+                    socket = serverSocket.accept();
+                    System.out.println("🔔 Conexión recibida desde: " + socket.getInetAddress().getHostAddress());
+
+                    // ✅ Verificar nuevamente antes de setear (por si cambió durante accept)
+                    if (!comController.isValid()) {
+                        comController.setSocket(socket);
+                    } else {
+                        System.out.println("⚠️ Ya hay conexión, cerrando nueva");
+                        socket.close();
+                    }
+
                 } catch (IOException e) {
+                    System.err.println("❌ Error en ServerSocket: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                // ✅ Ya hay conexión válida, esperar más tiempo
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
