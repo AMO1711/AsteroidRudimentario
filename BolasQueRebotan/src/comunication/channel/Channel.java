@@ -15,14 +15,14 @@ public class Channel implements Runnable {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private HealthChannel healthChannel;
-    private Thread readerThread; // ✅ NUEVO: Controlar thread de lectura
-    private Thread healthThread;  // ✅ NUEVO: Controlar thread de health
+    private Thread readerThread;
+    private Thread healthThread;
 
     public Channel(String ip, ComController comController){
         this.comController = comController;
         this.socket = null;
         this.ip = ip;
-        this.healthChannel = null; // ✅ Inicializar en null
+        this.healthChannel = null;
         this.readerThread = null;
         this.healthThread = null;
     }
@@ -35,7 +35,6 @@ public class Channel implements Runnable {
         // Si ya hay un socket válido, cerrar el nuevo y salir
         if(this.socket != null && !this.socket.isClosed()){
             try {
-                System.out.println("⚠️ Ya existe socket válido, cerrando el nuevo");
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -45,7 +44,6 @@ public class Channel implements Runnable {
 
         // Limpiar socket anterior si existe pero está cerrado
         if (this.socket != null && this.socket.isClosed()) {
-            System.out.println("🧹 Limpiando socket anterior cerrado");
             limpiarSocket();
         }
 
@@ -58,19 +56,13 @@ public class Channel implements Runnable {
         this.socket = socket;
 
         try {
-            System.out.println("🔧 Creando ObjectOutputStream...");
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
 
-            System.out.println("🔧 Creando ObjectInputStream...");
             in = new ObjectInputStream(socket.getInputStream());
 
-            System.out.println("✅ Streams creados exitosamente");
-
-            // ✅ Crear NUEVO HealthChannel para esta conexión
             this.healthChannel = new HealthChannel(this);
 
-            // ✅ Iniciar threads controlados
             readerThread = new Thread(this, "ChannelReader");
             readerThread.start();
 
@@ -78,10 +70,10 @@ public class Channel implements Runnable {
             healthThread.start();
 
         } catch (EOFException e) {
-            System.err.println("❌ EOFException: El socket remoto se cerró antes de completar el handshake");
+            System.err.println("EOFException: El socket remoto se cerró antes de completar el handshake");
             limpiarSocket();
         } catch (IOException e) {
-            System.err.println("❌ Error creando streams: " + e.getMessage());
+            System.err.println("Error creando streams: " + e.getMessage());
             e.printStackTrace();
             limpiarSocket();
         }
@@ -93,7 +85,7 @@ public class Channel implements Runnable {
                 out.writeObject(msg);
                 out.flush();
             } catch (IOException e) {
-                System.err.println("❌ Error enviando mensaje: " + e.getMessage());
+                System.err.println("Error enviando mensaje: " + e.getMessage());
                 close();
             }
         }
@@ -118,8 +110,6 @@ public class Channel implements Runnable {
     }
 
     public synchronized void close(){
-        System.out.println("🛑 Cerrando Channel...");
-
         try {
             if (in != null) {
                 in.close();
@@ -147,11 +137,8 @@ public class Channel implements Runnable {
             e.printStackTrace();
         }
 
-        // ✅ Los threads terminarán solos al detectar socket cerrado
         readerThread = null;
         healthThread = null;
-
-        System.out.println("✅ Channel cerrado completamente");
     }
 
     private void limpiarSocket() {
@@ -167,7 +154,7 @@ public class Channel implements Runnable {
         this.out = null;
         this.in = null;
 
-        System.out.println("🧹 Socket limpiado después de error");
+        System.out.println("Socket limpiado después de error");
     }
 
     public void comprobarConexion(){
@@ -187,7 +174,6 @@ public class Channel implements Runnable {
                 msg = (MsgDTO) in.readObject();
 
                 if (msg == null) {
-                    System.out.println("⚠️ Mensaje nulo recibido, cerrando conexión");
                     close();
                     break;
                 }
@@ -195,15 +181,15 @@ public class Channel implements Runnable {
                 procesarMensaje(msg);
 
             } catch (EOFException e) {
-                System.err.println("❌ Conexión cerrada por el otro extremo (EOFException)");
+                System.err.println("Conexión cerrada por el otro extremo (EOFException)");
                 close();
                 break;
             } catch (IOException e) {
-                System.err.println("❌ Error de I/O: " + e.getMessage());
+                System.err.println("Error de I/O: " + e.getMessage());
                 close();
                 break;
             } catch (ClassNotFoundException e) {
-                System.err.println("❌ Clase no encontrada: " + e.getMessage());
+                System.err.println("Clase no encontrada: " + e.getMessage());
                 close();
                 break;
             }

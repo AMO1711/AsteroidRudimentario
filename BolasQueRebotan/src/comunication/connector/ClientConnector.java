@@ -23,21 +23,16 @@ public class ClientConnector implements Runnable{
         Socket socket = null;
         int intentos = 0;
 
-        System.out.println("ClientConnector iniciado - Intentando conectar a: " + HOST);
-
         while (true){
             // ✅ Solo intentar conectar si NO hay conexión válida
             if (!comController.isValid()){
                 intentos++;
-                System.out.println("🔄 Intento de conexión #" + intentos + " a " + HOST);
-
                 if (Objects.equals(HOST, "localhost")){
                     try {
                         socket = new Socket(HOST, comController.getAvailablePort());
-                        System.out.println("✅ Conectado a localhost");
+                        System.out.println("Conectado a localhost");
                     } catch (IOException e) {
-                        System.err.println("❌ Error conectando a localhost: " + e.getMessage());
-                        // Reintentar después de esperar
+                        System.err.println("Error conectando a localhost: " + e.getMessage());
                         try {
                             Thread.sleep(5000);
                         } catch (InterruptedException exc) {
@@ -48,43 +43,31 @@ public class ClientConnector implements Runnable{
                 } else {
                     try {
                         socket = new Socket(HOST, mainPort);
-                        System.out.println("✅ Conectado a " + HOST + ":" + mainPort);
                     } catch (IOException e) {
-                        System.err.println("❌ Falló puerto " + mainPort + ": " + e.getMessage());
                         try {
                             socket = new Socket(HOST, auxPort);
-                            System.out.println("✅ Conectado a " + HOST + ":" + auxPort);
                         } catch (IOException ex) {
-                            System.err.println("❌ Falló puerto " + auxPort + ": " + ex.getMessage());
-                            System.err.println("⏳ Esperando 5 segundos antes de reintentar...");
+                            System.err.println("Esperando 5 segundos antes de reintentar...");
                             try {
                                 Thread.sleep(5000);
                             } catch (InterruptedException exc) {
                                 throw new RuntimeException(exc);
                             }
-                            continue; // ✅ Reintentar sin setear socket
+                            continue;
                         }
                     }
                 }
 
-                // ✅ Solo setear si el socket fue creado exitosamente
                 if (socket != null && socket.isConnected()) {
                     comController.setSocket(socket);
-                    intentos = 0; // Reset contador
+                    intentos = 0;
                 }
             } else {
-                // ✅ Ya hay conexión válida, esperar más tiempo
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            }
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         }
     }

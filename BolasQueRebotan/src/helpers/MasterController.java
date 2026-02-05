@@ -18,7 +18,7 @@ public class MasterController {
         String miIP = obtenerMiIP();
         String ipRemota = obtenerIPRemota(miIP);
 
-        System.out.println("Mi ip: " + miIP + "\nIp remota: " + ipRemota);
+        System.out.println("Mi ip: " + miIP + "\tIp remota: " + ipRemota);
 
         this.controlador = new Controller(this);
         this.comunicaciones = new ComController(this, ipRemota, 11000, 11001);
@@ -26,12 +26,12 @@ public class MasterController {
 
     private String obtenerIPRemota(String miIP){
         if (miIP.equals(IP_EQUIPO_1)) {
-            return IP_EQUIPO_2; // Soy equipo 1, conecto a equipo 2
+            return IP_EQUIPO_2;
         } else if (miIP.equals(IP_EQUIPO_2)) {
-            return IP_EQUIPO_1; // Soy equipo 2, conecto a equipo 1
+            return IP_EQUIPO_1;
         } else {
             // Para desarrollo en localhost
-            System.out.println("⚠️ MODO DESARROLLO: IP no reconocida, usando localhost");
+            System.out.println("MODO DESARROLLO: IP no reconocida, usando localhost");
             return "localhost";
         }
     }
@@ -57,28 +57,26 @@ public class MasterController {
                     if (addr instanceof Inet4Address) {
                         String ip = addr.getHostAddress();
 
-                        // ✅ Buscar específicamente IPs de vuestra red (172.16.8.x)
+                        // Buscar específicamente IPs de la red WifiWire (172.16.8.x)
                         if (ip.startsWith("172.16.8.")) {
-                            System.out.println("✅ IP Wi-Fi detectada: " + ip + " (interfaz: " + iface.getDisplayName() + ")");
                             return ip;
                         }
                     }
                 }
             }
 
-            // Si no encuentra 172.16.8.x, intentar con getLocalHost()
-            System.out.println("⚠️ No se encontró IP 172.16.8.x, usando getLocalHost()");
+            System.out.println("No se encontró IP 172.16.8.x, usando getLocalHost()");
             return InetAddress.getLocalHost().getHostAddress();
 
         } catch (SocketException e) {
-            System.err.println("❌ Error obteniendo interfaces de red: " + e.getMessage());
+            System.err.println("Error obteniendo interfaces de red: " + e.getMessage());
             try {
                 return InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException ex) {
                 return "localhost";
             }
         } catch (UnknownHostException e) {
-            System.err.println("❌ Error obteniendo host local: " + e.getMessage());
+            System.err.println("Error obteniendo host local: " + e.getMessage());
             return "localhost";
         }
     }

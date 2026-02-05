@@ -15,8 +15,6 @@ public class HealthChannel implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("🏥 HealthChannel iniciado");
-
         while (true){
             try {
                 Thread.sleep(CHECK_INTERVAL);
@@ -24,11 +22,8 @@ public class HealthChannel implements Runnable{
                 throw new RuntimeException(e);
             }
 
-            // Enviar ping
             channel.comprobarConexion();
-            System.out.println("📡 Ping enviado, esperando respuesta...");
 
-            // Esperar un momento para la respuesta
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
@@ -37,21 +32,15 @@ public class HealthChannel implements Runnable{
 
             // Verificar si recibimos respuesta a tiempo
             long tiempoSinRespuesta = System.currentTimeMillis() - ultimaRespuesta;
-
             if (tiempoSinRespuesta > TIMEOUT) {
-                System.err.println("❌ Sin respuesta por " + (tiempoSinRespuesta/1000) + " segundos. Cerrando conexión.");
+                System.err.println("Sin respuesta por " + (tiempoSinRespuesta/1000) + " segundos. Cerrando conexión.");
                 channel.close();
                 break;
-            } else {
-                System.out.println("✅ Conexión saludable (última respuesta hace " + (tiempoSinRespuesta/1000) + "s)");
             }
         }
-
-        System.out.println("🛑 HealthChannel terminado");
     }
 
     public synchronized void notifyHealthy(){
         this.ultimaRespuesta = System.currentTimeMillis();
-        System.out.println("💚 Pong recibido");
     }
 }
