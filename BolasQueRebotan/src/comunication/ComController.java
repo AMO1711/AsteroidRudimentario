@@ -1,10 +1,9 @@
 package comunication;
 
-import comunication.channel.BolaDTO;
+import comunication.helpers.BolaDTO;
 import comunication.channel.Channel;
 import comunication.connector.ClientConnector;
 import comunication.connector.ServerConnector;
-import helpers.MasterController;
 
 import java.net.Socket;
 

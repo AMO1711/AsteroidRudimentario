@@ -1,4 +1,4 @@
-package comunication.channel;
+package comunication.helpers;
 
 import java.io.Serializable;
 

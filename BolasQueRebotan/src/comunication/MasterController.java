@@ -1,8 +1,7 @@
-package helpers;
+package comunication;
 
 import balls.controller.Controller;
-import comunication.ComController;
-import comunication.channel.BolaDTO;
+import comunication.helpers.BolaDTO;
 
 import java.net.*;
 import java.util.Enumeration;

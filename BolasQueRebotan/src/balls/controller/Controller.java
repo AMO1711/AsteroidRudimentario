@@ -5,8 +5,8 @@ import balls.model.Player;
 import balls.model.ZonaCritica;
 import balls.view.View;
 import balls.model.Model;
-import comunication.channel.BolaDTO;
-import helpers.MasterController;
+import comunication.helpers.BolaDTO;
+import comunication.MasterController;
 
 import java.util.ArrayList;
 

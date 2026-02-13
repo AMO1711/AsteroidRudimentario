@@ -24,7 +24,7 @@ public class ClientConnector implements Runnable{
         int intentos = 0;
 
         while (true){
-            // ✅ Solo intentar conectar si NO hay conexión válida
+            // Solo intentar conectar si NO hay conexión válida
             if (!comController.isValid()){
                 intentos++;
                 if (Objects.equals(HOST, "localhost")){

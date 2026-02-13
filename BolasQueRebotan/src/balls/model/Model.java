@@ -5,7 +5,7 @@ import balls.controller.Events;
 import balls.physics.DesgloseXY;
 import balls.physics.PhysicsModel;
 import balls.physics.PhysicsValuesDTO;
-import comunication.channel.BolaDTO;
+import comunication.helpers.BolaDTO;
 
 import java.util.ArrayList;
 

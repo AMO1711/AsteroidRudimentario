@@ -1,6 +1,8 @@
 package comunication.channel;
 
 import comunication.ComController;
+import comunication.helpers.BolaDTO;
+import comunication.helpers.MsgDTO;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -49,7 +51,7 @@ public class Channel implements Runnable {
 
         // Verificar que el socket entrante es válido
         if (socket == null || socket.isClosed() || !socket.isConnected()) {
-            System.err.println("❌ Socket inválido recibido en setSocket()");
+            System.err.println("Socket inválido recibido en setSocket()");
             return;
         }
 
@@ -195,6 +197,6 @@ public class Channel implements Runnable {
             }
         }
 
-        System.out.println("🛑 Thread de lectura del Channel terminado");
+        System.out.println("Thread de lectura del Channel terminado");
     }
 }
